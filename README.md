@@ -48,7 +48,10 @@ pip install xlsxwriter
 ## Dépendances Odoo
 
 ```python
-['base', 'mail', 'hr', 'web']
+[
+        'base', 'mail', 'hr', 'web',
+        'stock', 'purchase', 'account', 'maintenance', 'contacts',
+],
 ```
 
 ---
