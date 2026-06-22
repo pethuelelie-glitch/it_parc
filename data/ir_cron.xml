@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Cron 1 : Scan des alertes automatiques (quotidien) -->
+    <record id="ir_cron_scan_alertes" model="ir.cron">
+        <field name="name">IT Parc — Scan des alertes (garanties + contrats)</field>
+        <field name="model_id" ref="it_parc.model_it_alerte"/>
+        <field name="state">code</field>
+        <field name="code">model.scan_alertes_auto(delai_jours=30)</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="numbercall">-1</field>
+        <field name="active">True</field>
+        <field name="user_id" ref="base.user_admin"/>
+    </record>
+
+    <!-- Cron 2 : Mise à jour des contrats expirés (quotidien) -->
+    <record id="ir_cron_update_contrats" model="ir.cron">
+        <field name="name">IT Parc — Mise à jour état contrats expirés</field>
+        <field name="model_id" ref="it_parc.model_it_contrat"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_update_expired()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="numbercall">-1</field>
+        <field name="active">True</field>
+        <field name="user_id" ref="base.user_admin"/>
+    </record>
+
+</odoo>

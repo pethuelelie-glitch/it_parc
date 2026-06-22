@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Action de rapport -->
+    <record id="action_report_fiche_equipement" model="ir.actions.report">
+        <field name="name">Fiche Équipement</field>
+        <field name="model">it.equipement</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">it_parc.report_fiche_equipement_template</field>
+        <field name="report_file">it_parc/report/report_fiche_equipement</field>
+        <field name="binding_model_id" ref="model_it_equipement"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="base.paperformat_euro"/>
+    </record>
+
+    <!-- Template QWeb -->
+    <template id="report_fiche_equipement_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+
+                        <!-- En-tête -->
+                        <div class="row mb-4">
+                            <div class="col-8">
+                                <h2 style="color:#1565C0; border-bottom: 2px solid #1565C0; padding-bottom:8px;">
+                                    Fiche Équipement Informatique
+                                </h2>
+                                <h3 class="mt-2"><t t-esc="o.name"/></h3>
+                                <p class="text-muted">Référence : <strong><t t-esc="o.reference"/></strong></p>
+                            </div>
+                            <div class="col-4 text-end">
+                                <div style="background:#f5f7fa; padding:12px; border-radius:8px; border-left:4px solid #1565C0;">
+                                    <p class="mb-1"><strong>État :</strong></p>
+                                    <span t-attf-style="color: #{o.state == 'affecte' and '#2e7d32' or o.state == 'en_maintenance' and '#e65100' or o.state == 'retire' and '#c62828' or '#546e7a'}; font-size:14px; font-weight:bold;">
+                                        <t t-esc="dict([('brouillon','Brouillon'),('affecte','Affecté'),('en_maintenance','En maintenance'),('retire','Retiré')]).get(o.state, o.state)"/>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Informations principales -->
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <table class="table table-bordered table-sm">
+                                    <thead style="background:#1565C0; color:white;">
+                                        <tr><th colspan="2">Identification</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td style="width:45%;"><strong>Catégorie</strong></td>
+                                            <td><t t-esc="dict([('poste_travail','Poste de travail'),('serveur','Serveur'),('imprimante','Imprimante'),('reseau','Équipement réseau'),('telephone','Téléphone IP'),('autre','Autre')]).get(o.categorie, o.categorie)"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Marque</strong></td>
+                                            <td><t t-esc="o.marque or '—'"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Modèle</strong></td>
+                                            <td><t t-esc="o.modele or '—'"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Numéro de série</strong></td>
+                                            <td><t t-esc="o.numero_serie or '—'"/></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-6">
+                                <table class="table table-bordered table-sm">
+                                    <thead style="background:#2e7d32; color:white;">
+                                        <tr><th colspan="2">Affectation</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td style="width:45%;"><strong>Employé</strong></td>
+                                            <td><t t-esc="o.employee_id.name or '—'"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Département</strong></td>
+                                            <td><t t-esc="o.department_id.name or '—'"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Localisation</strong></td>
+                                            <td><t t-esc="o.localisation or '—'"/></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Acquisition & garantie -->
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <table class="table table-bordered table-sm">
+                                    <thead style="background:#e65100; color:white;">
+                                        <tr><th colspan="4">Acquisition &amp; Garantie</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td style="width:20%;"><strong>Date d'achat</strong></td>
+                                            <td><t t-esc="o.date_achat and o.date_achat.strftime('%d/%m/%Y') or '—'"/></td>
+                                            <td style="width:20%;"><strong>Valeur d'achat</strong></td>
+                                            <td><t t-esc="'{:,.0f} FCFA'.format(o.valeur_achat) if o.valeur_achat else '—'"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Fin de garantie</strong></td>
+                                            <td><t t-esc="o.date_garantie and o.date_garantie.strftime('%d/%m/%Y') or '—'"/></td>
+                                            <td><strong>Jours restants</strong></td>
+                                            <td>
+                                                <t t-if="o.date_garantie">
+                                                    <t t-if="o.garantie_expire">
+                                                        <span style="color:#c62828; font-weight:bold;">Expirée depuis <t t-esc="abs(o.jours_garantie)"/> jours</span>
+                                                    </t>
+                                                    <t t-else="">
+                                                        <span style="color:#2e7d32;"><t t-esc="o.jours_garantie"/> jours restants</span>
+                                                    </t>
+                                                </t>
+                                                <t t-else="">—</t>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Statistiques maintenance -->
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <table class="table table-bordered table-sm">
+                                    <thead style="background:#4a148c; color:white;">
+                                        <tr><th colspan="4">Statistiques Maintenance</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td style="width:25%;"><strong>Nb interventions</strong></td>
+                                            <td><t t-esc="o.nb_interventions"/></td>
+                                            <td style="width:25%;"><strong>Coût total maintenance</strong></td>
+                                            <td><t t-esc="'{:,.0f} FCFA'.format(o.cout_total_maintenance) if o.cout_total_maintenance else '—'"/></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Historique des interventions -->
+                        <t t-if="o.intervention_ids">
+                            <h5 style="color:#1565C0; margin-top:16px;">Historique des interventions</h5>
+                            <table class="table table-bordered table-sm">
+                                <thead style="background:#546e7a; color:white;">
+                                    <tr>
+                                        <th>Titre</th><th>Type</th><th>Technicien</th>
+                                        <th>Date début</th><th>Date fin</th>
+                                        <th>Durée (h)</th><th>Coût (FCFA)</th><th>État</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="o.intervention_ids" t-as="i">
+                                        <tr>
+                                            <td><t t-esc="i.name"/></td>
+                                            <td><t t-esc="dict([('correctif','Correctif'),('preventif','Préventif'),('upgrade','Mise à niveau'),('autre','Autre')]).get(i.type_intervention, i.type_intervention)"/></td>
+                                            <td><t t-esc="i.technicien_id.name or '—'"/></td>
+                                            <td><t t-esc="i.date_debut and i.date_debut.strftime('%d/%m/%Y') or '—'"/></td>
+                                            <td><t t-esc="i.date_fin and i.date_fin.strftime('%d/%m/%Y') or '—'"/></td>
+                                            <td class="text-end"><t t-esc="'%.1f' % i.duree if i.duree else '—'"/></td>
+                                            <td class="text-end"><t t-esc="'{:,.0f}'.format(i.cout) if i.cout else '0'"/></td>
+                                            <td><t t-esc="dict([('planifie','Planifiée'),('en_cours','En cours'),('termine','Terminée'),('annule','Annulée')]).get(i.state, i.state)"/></td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </t>
+
+                        <!-- Pied de page -->
+                        <div class="row mt-4">
+                            <div class="col-12 text-muted" style="font-size:10px; border-top:1px solid #dee2e6; padding-top:8px;">
+                                Document généré le <t t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y à %H:%M')"/> —
+                                TECHPARK CI — Module IT Parc v18.0
+                            </div>
+                        </div>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+</odoo>

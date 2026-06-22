@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ═══════════════════════════════════════════
+         Actions de navigation
+    ═══════════════════════════════════════════ -->
+
+    <!-- Dashboard OWL -->
+    <record id="action_it_parc_dashboard" model="ir.actions.client">
+        <field name="name">Tableau de bord IT</field>
+        <field name="tag">it_parc_dashboard_action</field>
+    </record>
+
+    <!-- Équipements -->
+    <record id="action_it_equipement" model="ir.actions.act_window">
+        <field name="name">Équipements</field>
+        <field name="res_model">it.equipement</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aucun équipement enregistré
+            </p>
+            <p>Créez votre premier équipement informatique.</p>
+        </field>
+    </record>
+
+    <!-- Affectations -->
+    <record id="action_it_affectation" model="ir.actions.act_window">
+        <field name="name">Historique des affectations</field>
+        <field name="res_model">it.affectation</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Interventions -->
+    <record id="action_it_intervention" model="ir.actions.act_window">
+        <field name="name">Interventions</field>
+        <field name="res_model">it.intervention</field>
+        <field name="view_mode">list,calendar,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aucune intervention enregistrée
+            </p>
+        </field>
+    </record>
+
+    <!-- Contrats -->
+    <record id="action_it_contrat" model="ir.actions.act_window">
+        <field name="name">Contrats fournisseurs</field>
+        <field name="res_model">it.contrat</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aucun contrat enregistré
+            </p>
+        </field>
+    </record>
+
+    <!-- Alertes -->
+    <record id="action_it_alerte" model="ir.actions.act_window">
+        <field name="name">Alertes</field>
+        <field name="res_model">it.alerte</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('state', '!=', 'traitee')]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aucune alerte active
+            </p>
+        </field>
+    </record>
+
+    <!-- Actions d'export (URLs) -->
+    <record id="action_export_inventaire" model="ir.actions.act_url">
+        <field name="name">Exporter l'inventaire (Excel)</field>
+        <field name="url">/it_parc/export/inventaire</field>
+        <field name="target">self</field>
+    </record>
+
+    <record id="action_export_couts" model="ir.actions.act_url">
+        <field name="name">Exporter les coûts de maintenance (Excel)</field>
+        <field name="url">/it_parc/export/couts_maintenance</field>
+        <field name="target">self</field>
+    </record>
+
+    <record id="action_export_contrats" model="ir.actions.act_url">
+        <field name="name">Exporter contrats expirants (Excel)</field>
+        <field name="url">/it_parc/export/contrats_expirants</field>
+        <field name="target">self</field>
+    </record>
+
+    <!-- Action Import CSV -->
+    <record id="action_wizard_import_csv" model="ir.actions.act_window">
+        <field name="name">Importer des équipements (CSV)</field>
+        <field name="res_model">wizard.import.csv</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Action Scan alertes -->
+    <record id="action_wizard_scan_alertes" model="ir.actions.act_window">
+        <field name="name">Scan des alertes</field>
+        <field name="res_model">wizard.scan.alertes</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════
+         Structure des menus
+    ═══════════════════════════════════════════ -->
+
+    <!-- Menu racine -->
+    <menuitem id="menu_it_parc_root"
+              name="IT Parc"
+              sequence="90"
+              web_icon="it_parc,static/description/icon.png"
+              groups="it_parc.group_it_technicien"/>
+
+    <!-- 1. Tableau de bord -->
+    <menuitem id="menu_it_parc_dashboard"
+              name="Tableau de bord"
+              parent="menu_it_parc_root"
+              action="action_it_parc_dashboard"
+              sequence="10"
+              groups="it_parc.group_it_technicien"/>
+
+    <!-- 2. Équipements -->
+    <menuitem id="menu_it_parc_equipements"
+              name="Équipements"
+              parent="menu_it_parc_root"
+              sequence="20"
+              groups="it_parc.group_it_technicien"/>
+
+    <menuitem id="menu_it_equipement_list"
+              name="Tous les équipements"
+              parent="menu_it_parc_equipements"
+              action="action_it_equipement"
+              sequence="21"
+              groups="it_parc.group_it_technicien"/>
+
+    <menuitem id="menu_it_intervention_list"
+              name="Interventions"
+              parent="menu_it_parc_equipements"
+              action="action_it_intervention"
+              sequence="22"
+              groups="it_parc.group_it_technicien"/>
+
+    <menuitem id="menu_it_affectation_list"
+              name="Historique des affectations"
+              parent="menu_it_parc_equipements"
+              action="action_it_affectation"
+              sequence="23"
+              groups="it_parc.group_it_technicien"/>
+
+    <!-- 3. Contrats & Alertes -->
+    <menuitem id="menu_it_parc_contrats"
+              name="Contrats &amp; Alertes"
+              parent="menu_it_parc_root"
+              sequence="30"
+              groups="it_parc.group_it_manager"/>
+
+    <menuitem id="menu_it_contrat_list"
+              name="Contrats fournisseurs"
+              parent="menu_it_parc_contrats"
+              action="action_it_contrat"
+              sequence="31"
+              groups="it_parc.group_it_manager"/>
+
+    <menuitem id="menu_it_alerte_list"
+              name="Alertes"
+              parent="menu_it_parc_contrats"
+              action="action_it_alerte"
+              sequence="32"
+              groups="it_parc.group_it_technicien"/>
+
+    <!-- 4. Imports & Exports -->
+    <menuitem id="menu_it_parc_io"
+              name="Imports &amp; Exports"
+              parent="menu_it_parc_root"
+              sequence="40"
+              groups="it_parc.group_it_manager"/>
+
+    <menuitem id="menu_import_csv"
+              name="Importer équipements (CSV)"
+              parent="menu_it_parc_io"
+              action="action_wizard_import_csv"
+              sequence="41"
+              groups="it_parc.group_it_manager"/>
+
+    <menuitem id="menu_export_inventaire"
+              name="Exporter inventaire (Excel)"
+              parent="menu_it_parc_io"
+              action="action_export_inventaire"
+              sequence="42"
+              groups="it_parc.group_it_manager"/>
+
+    <menuitem id="menu_export_couts"
+              name="Exporter coûts maintenance (Excel)"
+              parent="menu_it_parc_io"
+              action="action_export_couts"
+              sequence="43"
+              groups="it_parc.group_it_manager"/>
+
+    <menuitem id="menu_export_contrats"
+              name="Exporter contrats expirants (Excel)"
+              parent="menu_it_parc_io"
+              action="action_export_contrats"
+              sequence="44"
+              groups="it_parc.group_it_manager"/>
+
+    <!-- 5. Configuration -->
+    <menuitem id="menu_it_parc_config"
+              name="Configuration"
+              parent="menu_it_parc_root"
+              sequence="50"
+              groups="it_parc.group_it_manager"/>
+
+    <menuitem id="menu_scan_alertes"
+              name="Lancer un scan d'alertes"
+              parent="menu_it_parc_config"
+              action="action_wizard_scan_alertes"
+              sequence="51"
+              groups="it_parc.group_it_manager"/>
+
+</odoo>

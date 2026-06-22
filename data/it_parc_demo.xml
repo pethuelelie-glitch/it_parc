@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ══════════════════════════════════
+         Partenaires fournisseurs démo
+    ══════════════════════════════════ -->
+    <record id="demo_partner_techshop" model="res.partner">
+        <field name="name">TechShop Abidjan</field>
+        <field name="is_company">True</field>
+        <field name="email">contact@techshop-abidjan.ci</field>
+        <field name="phone">+225 27 22 00 11 00</field>
+    </record>
+    <record id="demo_partner_orange_ci" model="res.partner">
+        <field name="name">Orange Business Services CI</field>
+        <field name="is_company">True</field>
+        <field name="email">b2b@orange.ci</field>
+        <field name="phone">+225 27 23 00 00 00</field>
+    </record>
+    <record id="demo_partner_hp_ci" model="res.partner">
+        <field name="name">HP Côte d'Ivoire</field>
+        <field name="is_company">True</field>
+        <field name="email">support@hp-ci.com</field>
+    </record>
+
+    <!-- ══════════════════════════════════
+         Départements & employés démo
+    ══════════════════════════════════ -->
+    <record id="demo_dept_it" model="hr.department">
+        <field name="name">Département Informatique</field>
+    </record>
+    <record id="demo_dept_compta" model="hr.department">
+        <field name="name">Comptabilité &amp; Finance</field>
+    </record>
+    <record id="demo_dept_commercial" model="hr.department">
+        <field name="name">Direction Commerciale</field>
+    </record>
+
+    <record id="demo_emp_konan" model="hr.employee">
+        <field name="name">Konan Yao Éric</field>
+        <field name="department_id" ref="demo_dept_it"/>
+        <field name="job_title">Technicien IT</field>
+    </record>
+    <record id="demo_emp_kone" model="hr.employee">
+        <field name="name">Koné Mariam</field>
+        <field name="department_id" ref="demo_dept_compta"/>
+        <field name="job_title">Responsable Comptable</field>
+    </record>
+    <record id="demo_emp_diallo" model="hr.employee">
+        <field name="name">Diallo Mamadou</field>
+        <field name="department_id" ref="demo_dept_commercial"/>
+        <field name="job_title">Directeur Commercial</field>
+    </record>
+    <record id="demo_emp_bamba" model="hr.employee">
+        <field name="name">Bamba Fatoumata</field>
+        <field name="department_id" ref="demo_dept_compta"/>
+        <field name="job_title">Assistante Comptable</field>
+    </record>
+    <record id="demo_emp_yao" model="hr.employee">
+        <field name="name">Yao Jean-Baptiste</field>
+        <field name="department_id" ref="demo_dept_it"/>
+        <field name="job_title">Administrateur Réseau</field>
+    </record>
+
+    <!-- ══════════════════════════════════
+         Équipements démo (10)
+    ══════════════════════════════════ -->
+    <record id="demo_eq_01" model="it.equipement">
+        <field name="name">PC Bureau Direction</field>
+        <field name="categorie">poste_travail</field>
+        <field name="marque">Dell</field>
+        <field name="modele">OptiPlex 7090</field>
+        <field name="numero_serie">SN-DELL-7090-001</field>
+        <field name="valeur_achat">450000</field>
+        <field name="date_achat">2022-03-15</field>
+        <field name="date_garantie">2025-03-15</field>
+        <field name="state">affecte</field>
+        <field name="employee_id" ref="demo_emp_diallo"/>
+        <field name="department_id" ref="demo_dept_commercial"/>
+        <field name="localisation">Bâtiment A – Bureau 102</field>
+    </record>
+
+    <record id="demo_eq_02" model="it.equipement">
+        <field name="name">Serveur Fichiers Principal</field>
+        <field name="categorie">serveur</field>
+        <field name="marque">HP</field>
+        <field name="modele">ProLiant DL380 Gen10</field>
+        <field name="numero_serie">SN-HP-DL380-001</field>
+        <field name="valeur_achat">2800000</field>
+        <field name="date_achat">2021-06-01</field>
+        <field name="date_garantie">2024-06-01</field>
+        <field name="state">affecte</field>
+        <field name="employee_id" ref="demo_emp_yao"/>
+        <field name="department_id" ref="demo_dept_it"/>
+        <field name="localisation">Salle serveurs – Rack A1</field>
+    </record>
+
+    <record id="demo_eq_03" model="it.equipement">
+        <field name="name">Imprimante Réseau Comptabilité</field>
+        <field name="categorie">imprimante</field>
+        <field name="marque">HP</field>
+        <field name="modele">LaserJet Pro M404dn</field>
+        <field name="numero_serie">SN-HP-LJ-001</field>
+        <field name="valeur_achat">180000</field>
+        <field name="date_achat">2023-01-10</field>
+        <field name="date_garantie">2026-01-10</field>
+        <field name="state">affecte</field>
+        <field name="department_id" ref="demo_dept_compta"/>
+        <field name="localisation">Bâtiment B – Salle Compta</field>
+    </record>
+
+    <record id="demo_eq_04" model="it.equipement">
+        <field name="name">Switch Cœur de réseau</field>
+        <field name="categorie">reseau</field>
+        <field name="marque">Cisco</field>
+        <field name="modele">Catalyst 2960-X</field>
+        <field name="numero_serie">SN-CISCO-2960-001</field>
+        <field name="valeur_achat">650000</field>
+        <field name="date_achat">2020-11-20</field>
+        <field name="date_garantie">2023-11-20</field>
+        <field name="state">affecte</field>
+        <field name="employee_id" ref="demo_emp_yao"/>
+        <field name="department_id" ref="demo_dept_it"/>
+        <field name="localisation">Salle serveurs – Rack B2</field>
+    </record>
+
+    <record id="demo_eq_05" model="it.equipement">
+        <field name="name">Laptop Comptable 1</field>
+        <field name="categorie">poste_travail</field>
+        <field name="marque">Lenovo</field>
+        <field name="modele">ThinkPad L14 Gen 3</field>
+        <field name="numero_serie">SN-LENOVO-L14-001</field>
+        <field name="valeur_achat">520000</field>
+        <field name="date_achat">2023-04-05</field>
+        <field name="date_garantie">2026-04-05</field>
+        <field name="state">affecte</field>
+        <field name="employee_id" ref="demo_emp_kone"/>
+        <field name="department_id" ref="demo_dept_compta"/>
+        <field name="localisation">Bâtiment B – Bureau 201</field>
+    </record>
+
+    <record id="demo_eq_06" model="it.equipement">
+        <field name="name">Laptop Technicien IT</field>
+        <field name="categorie">poste_travail</field>
+        <field name="marque">Dell</field>
+        <field name="modele">Latitude 5520</field>
+        <field name="numero_serie">SN-DELL-LAT-001</field>
+        <field name="valeur_achat">580000</field>
+        <field name="date_achat">2022-09-12</field>
+        <field name="date_garantie">2025-09-12</field>
+        <field name="state">affecte</field>
+        <field name="employee_id" ref="demo_emp_konan"/>
+        <field name="department_id" ref="demo_dept_it"/>
+        <field name="localisation">Bâtiment A – Bureau IT</field>
+    </record>
+
+    <record id="demo_eq_07" model="it.equipement">
+        <field name="name">Serveur de Sauvegarde</field>
+        <field name="categorie">serveur</field>
+        <field name="marque">Dell</field>
+        <field name="modele">PowerEdge R540</field>
+        <field name="numero_serie">SN-DELL-R540-001</field>
+        <field name="valeur_achat">1950000</field>
+        <field name="date_achat">2022-02-28</field>
+        <field name="date_garantie">2025-02-28</field>
+        <field name="state">en_maintenance</field>
+        <field name="employee_id" ref="demo_emp_yao"/>
+        <field name="department_id" ref="demo_dept_it"/>
+        <field name="localisation">Salle serveurs – Rack A2</field>
+    </record>
+
+    <record id="demo_eq_08" model="it.equipement">
+        <field name="name">Téléphone IP Accueil</field>
+        <field name="categorie">telephone</field>
+        <field name="marque">Cisco</field>
+        <field name="modele">CP-7841</field>
+        <field name="numero_serie">SN-CISCO-IP-001</field>
+        <field name="valeur_achat">85000</field>
+        <field name="date_achat">2021-08-15</field>
+        <field name="date_garantie">2023-08-15</field>
+        <field name="state">affecte</field>
+        <field name="localisation">Bâtiment A – Accueil</field>
+    </record>
+
+    <record id="demo_eq_09" model="it.equipement">
+        <field name="name">Laptop Assistant Compta</field>
+        <field name="categorie">poste_travail</field>
+        <field name="marque">HP</field>
+        <field name="modele">EliteBook 840 G8</field>
+        <field name="numero_serie">SN-HP-840-001</field>
+        <field name="valeur_achat">495000</field>
+        <field name="date_achat">2023-07-20</field>
+        <field name="date_garantie">2026-07-20</field>
+        <field name="state">affecte</field>
+        <field name="employee_id" ref="demo_emp_bamba"/>
+        <field name="department_id" ref="demo_dept_compta"/>
+        <field name="localisation">Bâtiment B – Bureau 202</field>
+    </record>
+
+    <record id="demo_eq_10" model="it.equipement">
+        <field name="name">Vieux PC Secrétariat (retiré)</field>
+        <field name="categorie">poste_travail</field>
+        <field name="marque">Acer</field>
+        <field name="modele">Aspire XC</field>
+        <field name="numero_serie">SN-ACER-XC-OLD-001</field>
+        <field name="valeur_achat">200000</field>
+        <field name="date_achat">2018-01-10</field>
+        <field name="date_garantie">2021-01-10</field>
+        <field name="state">retire</field>
+        <field name="localisation">Stock – à recycler</field>
+    </record>
+
+    <!-- ══════════════════════════════════
+         Contrats fournisseurs démo (3)
+    ══════════════════════════════════ -->
+    <record id="demo_contrat_maintenance_hp" model="it.contrat">
+        <field name="name">MAINT-HP-2024-001</field>
+        <field name="fournisseur_id" ref="demo_partner_hp_ci"/>
+        <field name="type_contrat">maintenance</field>
+        <field name="date_debut">2024-01-01</field>
+        <field name="date_fin">2026-12-31</field>
+        <field name="montant">850000</field>
+        <field name="state">actif</field>
+        <field name="equipement_ids" eval="[(6, 0, [ref('demo_eq_02'), ref('demo_eq_07')])]"/>
+        <field name="note">Contrat de maintenance préventive et corrective pour les 2 serveurs HP.</field>
+    </record>
+
+    <record id="demo_contrat_licence_orange" model="it.contrat">
+        <field name="name">LIC-ORANGE-2023-001</field>
+        <field name="fournisseur_id" ref="demo_partner_orange_ci"/>
+        <field name="type_contrat">support</field>
+        <field name="date_debut">2023-06-01</field>
+        <field name="date_fin">2025-05-31</field>
+        <field name="montant">1200000</field>
+        <field name="state">actif</field>
+        <field name="equipement_ids" eval="[(6, 0, [ref('demo_eq_04')])]"/>
+        <field name="note">Support réseau et connectivité Internet fibre dédiée.</field>
+    </record>
+
+    <record id="demo_contrat_garantie_dell" model="it.contrat">
+        <field name="name">GAR-DELL-2022-001</field>
+        <field name="fournisseur_id" ref="demo_partner_techshop"/>
+        <field name="type_contrat">garantie_ext</field>
+        <field name="date_debut">2022-03-15</field>
+        <field name="date_fin">2025-03-15</field>
+        <field name="montant">320000</field>
+        <field name="state">actif</field>
+        <field name="equipement_ids" eval="[(6, 0, [ref('demo_eq_01'), ref('demo_eq_06')])]"/>
+        <field name="note">Garantie étendue 3 ans sur les postes Dell achetés en 2022.</field>
+    </record>
+
+    <!-- ══════════════════════════════════
+         Interventions démo (5)
+    ══════════════════════════════════ -->
+    <record id="demo_interv_01" model="it.intervention">
+        <field name="name">Remplacement disque dur — Serveur fichiers</field>
+        <field name="equipement_id" ref="demo_eq_02"/>
+        <field name="type_intervention">correctif</field>
+        <field name="technicien_id" ref="demo_emp_yao"/>
+        <field name="date_debut">2024-04-10 09:00:00</field>
+        <field name="date_fin">2024-04-10 14:30:00</field>
+        <field name="cout">85000</field>
+        <field name="state">termine</field>
+        <field name="rapport">&lt;p&gt;Remplacement du disque défaillant HDD SATA 2To par un SSD 2To. Test de redémarrage concluant. Données restaurées depuis sauvegarde.&lt;/p&gt;</field>
+    </record>
+
+    <record id="demo_interv_02" model="it.intervention">
+        <field name="name">Maintenance préventive — Switch Cisco</field>
+        <field name="equipement_id" ref="demo_eq_04"/>
+        <field name="type_intervention">preventif</field>
+        <field name="technicien_id" ref="demo_emp_yao"/>
+        <field name="date_debut">2024-05-20 08:00:00</field>
+        <field name="date_fin">2024-05-20 10:00:00</field>
+        <field name="cout">25000</field>
+        <field name="state">termine</field>
+        <field name="rapport">&lt;p&gt;Nettoyage des ports, mise à jour firmware vers IOS 15.2(7)E5, vérification des VLANs.&lt;/p&gt;</field>
+    </record>
+
+    <record id="demo_interv_03" model="it.intervention">
+        <field name="name">Réinstallation OS — Laptop Comptable</field>
+        <field name="equipement_id" ref="demo_eq_05"/>
+        <field name="type_intervention">correctif</field>
+        <field name="technicien_id" ref="demo_emp_konan"/>
+        <field name="date_debut">2024-06-03 10:00:00</field>
+        <field name="date_fin">2024-06-03 16:00:00</field>
+        <field name="cout">15000</field>
+        <field name="state">termine</field>
+        <field name="rapport">&lt;p&gt;Réinstallation Windows 11 Pro suite à infection malware. Installation antivirus et outils métiers.&lt;/p&gt;</field>
+    </record>
+
+    <record id="demo_interv_04" model="it.intervention">
+        <field name="name">Diagnostic panne — Serveur sauvegarde</field>
+        <field name="equipement_id" ref="demo_eq_07"/>
+        <field name="type_intervention">correctif</field>
+        <field name="technicien_id" ref="demo_emp_yao"/>
+        <field name="date_debut">2025-01-15 08:00:00</field>
+        <field name="cout">0</field>
+        <field name="state">en_cours</field>
+        <field name="rapport">&lt;p&gt;Alerte de défaillance RAID détectée. En attente du technicien HP pour remplacement des disques.&lt;/p&gt;</field>
+    </record>
+
+    <record id="demo_interv_05" model="it.intervention">
+        <field name="name">Mise à niveau RAM — PC Direction</field>
+        <field name="equipement_id" ref="demo_eq_01"/>
+        <field name="type_intervention">upgrade</field>
+        <field name="technicien_id" ref="demo_emp_konan"/>
+        <field name="date_debut">2024-09-05 14:00:00</field>
+        <field name="date_fin">2024-09-05 15:30:00</field>
+        <field name="cout">45000</field>
+        <field name="state">termine</field>
+        <field name="rapport">&lt;p&gt;Ajout de 16 Go RAM DDR4 (total 32 Go). Test mémoire OK. Performance améliorée.&lt;/p&gt;</field>
+    </record>
+
+    <!-- ══════════════════════════════════
+         Affectations démo
+    ══════════════════════════════════ -->
+    <record id="demo_affectation_01" model="it.affectation">
+        <field name="equipement_id" ref="demo_eq_01"/>
+        <field name="employee_id" ref="demo_emp_diallo"/>
+        <field name="department_id" ref="demo_dept_commercial"/>
+        <field name="date_debut">2022-03-15</field>
+        <field name="motif">Affectation initiale à la réception de l'équipement.</field>
+    </record>
+
+    <record id="demo_affectation_02" model="it.affectation">
+        <field name="equipement_id" ref="demo_eq_05"/>
+        <field name="employee_id" ref="demo_emp_kone"/>
+        <field name="department_id" ref="demo_dept_compta"/>
+        <field name="date_debut">2023-04-05</field>
+        <field name="motif">Nouveau poste de travail pour la responsable comptable.</field>
+    </record>
+
+</odoo>

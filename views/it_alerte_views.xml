@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ── Formulaire ── -->
+    <record id="view_it_alerte_form" model="ir.ui.view">
+        <field name="name">it.alerte.form</field>
+        <field name="model">it.alerte</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_marquer_vue" string="Marquer comme vue" type="object"
+                            class="btn-secondary" invisible="state != 'nouvelle'"/>
+                    <button name="action_marquer_traitee" string="Marquer comme traitée" type="object"
+                            class="btn-success" invisible="state == 'traitee'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="nouvelle,vue,traitee"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group string="Détails de l'alerte">
+                            <field name="type_alerte"/>
+                            <field name="urgence" widget="badge"
+                                   decoration-danger="urgence == 'critique'"
+                                   decoration-warning="urgence == 'haute'"
+                                   decoration-info="urgence == 'moyenne'"
+                                   decoration-success="urgence == 'faible'"/>
+                            <field name="date_expiration"/>
+                            <field name="jours_restants"/>
+                        </group>
+                        <group string="Élément concerné">
+                            <field name="equipement_id" invisible="type_alerte != 'garantie'"/>
+                            <field name="contrat_id" invisible="type_alerte != 'contrat'"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="message" readonly="1"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- ── Liste ── -->
+    <record id="view_it_alerte_list" model="ir.ui.view">
+        <field name="name">it.alerte.list</field>
+        <field name="model">it.alerte</field>
+        <field name="arch" type="xml">
+            <list decoration-danger="urgence == 'critique'"
+                  decoration-warning="urgence == 'haute'"
+                  multi_edit="1">
+                <field name="name"/>
+                <field name="type_alerte"/>
+                <field name="urgence" widget="badge"
+                       decoration-danger="urgence == 'critique'"
+                       decoration-warning="urgence == 'haute'"
+                       decoration-info="urgence == 'moyenne'"/>
+                <field name="equipement_id" optional="show"/>
+                <field name="contrat_id" optional="show"/>
+                <field name="date_expiration"/>
+                <field name="jours_restants"/>
+                <field name="state" widget="badge"
+                       decoration-danger="state == 'nouvelle'"
+                       decoration-warning="state == 'vue'"
+                       decoration-success="state == 'traitee'"/>
+                <button name="action_marquer_traitee" string="Traiter" type="object"
+                        class="btn-sm btn-success" invisible="state == 'traitee'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ── Recherche ── -->
+    <record id="view_it_alerte_search" model="ir.ui.view">
+        <field name="name">it.alerte.search</field>
+        <field name="model">it.alerte</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="equipement_id"/>
+                <field name="contrat_id"/>
+                <separator/>
+                <filter string="Nouvelles" name="nouvelle" domain="[('state','=','nouvelle')]"/>
+                <filter string="Non traitées" name="actives" domain="[('state','!=','traitee')]"/>
+                <filter string="Garanties" name="garantie" domain="[('type_alerte','=','garantie')]"/>
+                <filter string="Contrats" name="contrat" domain="[('type_alerte','=','contrat')]"/>
+                <filter string="Critiques" name="critique" domain="[('urgence','=','critique')]"/>
+                <group expand="0" string="Grouper par">
+                    <filter string="Type" name="by_type" context="{'group_by': 'type_alerte'}"/>
+                    <filter string="Urgence" name="by_urgence" context="{'group_by': 'urgence'}"/>
+                    <filter string="État" name="by_state" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+</odoo>
