@@ -1,54 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-
-    <record id="view_wizard_import_csv_form" model="ir.ui.view">
-        <field name="name">wizard.import.csv.form</field>
-        <field name="model">wizard.import.csv</field>
-        <field name="arch" type="xml">
-            <form string="Importer des équipements (CSV)">
-                <sheet>
-                    <!-- Guide colonnes CSV attendues -->
-                    <div class="alert alert-secondary" role="alert" invisible="import_fait">
-                        <strong>Format CSV attendu :</strong>
-                        <code>name;categorie;marque;modele;numero_serie;localisation;date_achat;date_garantie;valeur_achat</code>
-                        <br/>
-                        Catégories valides : <code>poste_travail</code>, <code>serveur</code>,
-                        <code>imprimante</code>, <code>reseau</code>, <code>telephone</code>, <code>autre</code>
-                        <br/>
-                        Dates au format <code>DD/MM/YYYY</code>.
-                        Les doublons sont détectés par numéro de série.
-                    </div>
-
-                    <group invisible="import_fait">
-                        <group string="Fichier à importer">
-                            <field name="fichier_csv" widget="binary" filename="fichier_nom"
-                                   required="not import_fait"/>
-                            <field name="fichier_nom" invisible="1"/>
-                            <field name="separateur" required="1"/>
+    <data>
+        <record id="view_wizard_import_csv_form" model="ir.ui.view">
+            <field name="name">wizard.import.csv.form</field>
+            <field name="model">wizard.import.csv</field>
+            <field name="arch" type="xml">
+                <form string="Import en masse — CSV">
+                    <sheet>
+                        <group string="Fichier" invisible="traite">
+                            <field name="fichier_csv" widget="binary" filename="nom_fichier"/>
+                            <field name="nom_fichier" invisible="True"/>
+                            <field name="separateur"/>
                         </group>
-                    </group>
-
-                    <!-- Rapport d'import -->
-                    <group invisible="not import_fait">
-                        <group string="Résumé">
-                            <field name="nb_crees" readonly="1"/>
-                            <field name="nb_ignores" readonly="1"/>
-                            <field name="nb_erreurs" readonly="1"/>
+                        <group string="Résultats" invisible="not traite">
+                            <field name="nb_crees" readonly="True"/>
+                            <field name="nb_ignores" readonly="True" string="Doublons ignorés"/>
+                            <field name="nb_erreurs" readonly="True"/>
                         </group>
-                    </group>
+                        <field name="rapport" readonly="True" invisible="not traite"
+                            placeholder="Le rapport apparaîtra ici après l'import."/>
+                        <div class="alert alert-info" invisible="traite">
+                            <strong>Colonnes attendues dans le CSV :</strong><br/>
+                            <b>Obligatoires :</b> name, categorie (ordinateur | portable | serveur | imprimante | reseau | telephone_ip | autre)<br/>
+                            <b>Optionnelles :</b> marque, modele, numero_serie, localisation, valeur_achat,
+                            date_achat (JJ/MM/AAAA), date_fin_garantie (JJ/MM/AAAA), notes
+                        </div>
+                    </sheet>
+                    <footer>
+                        <button name="action_importer" string="Importer" type="object"
+                            class="btn-primary" invisible="traite"/>
+                        <button string="Fermer" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
 
-                    <div invisible="not import_fait">
-                        <field name="resultat_html" widget="html" readonly="1"/>
-                    </div>
-                </sheet>
-                <footer>
-                    <button name="action_importer" string="Lancer l'import"
-                            type="object" class="btn-primary"
-                            invisible="import_fait"/>
-                    <button string="Fermer" class="btn-secondary" special="cancel"/>
-                </footer>
-            </form>
-        </field>
-    </record>
-
+        <record id="action_wizard_import_csv" model="ir.actions.act_window">
+            <field name="name">Import CSV équipements</field>
+            <field name="res_model">wizard.import.csv</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+    </data>
 </odoo>

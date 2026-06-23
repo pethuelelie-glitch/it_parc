@@ -1,175 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <data noupdate="1">
 
-    <!-- Catégorie du module -->
-    <record id="module_category_it_parc" model="ir.module.category">
-        <field name="name">IT Parc</field>
-        <field name="description">Gestion du parc informatique TECHPARK CI</field>
-        <field name="sequence">80</field>
-        <field name="exclusive_rule" eval="True"/>
-    </record>
+        <record id="module_category_it_parc" model="ir.module.category">
+            <field name="name">IT Parc</field>
+            <field name="description">Gestion du parc informatique TECHPARK CI</field>
+            <field name="sequence">25</field>
+        </record>
 
-    <!-- Groupe IT Technicien -->
-    <record id="group_it_technicien" model="res.groups">
-        <field name="name">IT Technicien</field>
-        <field name="category_id" ref="module_category_it_parc"/>
-        <field name="comment">
-            Accès en lecture à l'inventaire. Création et suivi des interventions.
-            Lecture seule sur les contrats.
-        </field>
-    </record>
+        <record id="group_it_parc_technicien" model="res.groups">
+            <field name="name">IT Technicien</field>
+            <field name="category_id" ref="module_category_it_parc"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+            <field name="comment">Lecture du parc + création et gestion des interventions.</field>
+        </record>
 
-    <!-- Groupe IT Manager (hérite du Technicien) -->
-    <record id="group_it_manager" model="res.groups">
-        <field name="name">IT Manager</field>
-        <field name="category_id" ref="module_category_it_parc"/>
-        <field name="implied_ids" eval="[(4, ref('it_parc.group_it_technicien'))]"/>
-        <field name="users" eval="[(4, ref('base.user_admin'))]"/>
-        <field name="comment">
-            Accès complet : équipements, contrats, alertes, exports, imports, configuration.
-        </field>
-    </record>
+        <record id="group_it_parc_manager" model="res.groups">
+            <field name="name">IT Responsable</field>
+            <field name="category_id" ref="module_category_it_parc"/>
+            <field name="implied_ids" eval="[(4, ref('group_it_parc_technicien'))]"/>
+            <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+            <field name="comment">Accès complet au module IT Parc.</field>
+        </record>
 
-    <!-- ═══════════════════════════════════════════════════
-         RÈGLES D'ENREGISTREMENT (ir.rule)
-         IT Manager  → accès global sans restriction
-         IT Technicien → accès complet parc, interventions filtrées
-    ═══════════════════════════════════════════════════ -->
-
-    <!-- ── IT MANAGER : accès global sur tous les modèles ── -->
-    <record id="rule_it_equipement_manager" model="ir.rule">
-        <field name="name">IT Manager — Équipements : accès global</field>
-        <field name="model_id" ref="model_it_equipement"/>
-        <field name="domain_force">[(1,'=',1)]</field>
-        <field name="groups" eval="[(4, ref('it_parc.group_it_manager'))]"/>
-        <field name="perm_read">1</field>
-        <field name="perm_write">1</field>
-        <field name="perm_create">1</field>
-        <field name="perm_unlink">1</field>
-    </record>
-
-    <record id="rule_it_affectation_manager" model="ir.rule">
-        <field name="name">IT Manager — Affectations : accès global</field>
-        <field name="model_id" ref="model_it_affectation"/>
-        <field name="domain_force">[(1,'=',1)]</field>
-        <field name="groups" eval="[(4, ref('it_parc.group_it_manager'))]"/>
-        <field name="perm_read">1</field>
-        <field name="perm_write">1</field>
-        <field name="perm_create">1</field>
-        <field name="perm_unlink">1</field>
-    </record>
-
-    <record id="rule_it_intervention_manager" model="ir.rule">
-        <field name="name">IT Manager — Interventions : accès global</field>
-        <field name="model_id" ref="model_it_intervention"/>
-        <field name="domain_force">[(1,'=',1)]</field>
-        <field name="groups" eval="[(4, ref('it_parc.group_it_manager'))]"/>
-        <field name="perm_read">1</field>
-        <field name="perm_write">1</field>
-        <field name="perm_create">1</field>
-        <field name="perm_unlink">1</field>
-    </record>
-
-    <record id="rule_it_contrat_manager" model="ir.rule">
-        <field name="name">IT Manager — Contrats : accès global</field>
-        <field name="model_id" ref="model_it_contrat"/>
-        <field name="domain_force">[(1,'=',1)]</field>
-        <field name="groups" eval="[(4, ref('it_parc.group_it_manager'))]"/>
-        <field name="perm_read">1</field>
-        <field name="perm_write">1</field>
-        <field name="perm_create">1</field>
-        <field name="perm_unlink">1</field>
-    </record>
-
-    <record id="rule_it_alerte_manager" model="ir.rule">
-        <field name="name">IT Manager — Alertes : accès global</field>
-        <field name="model_id" ref="model_it_alerte"/>
-        <field name="domain_force">[(1,'=',1)]</field>
-        <field name="groups" eval="[(4, ref('it_parc.group_it_manager'))]"/>
-        <field name="perm_read">1</field>
-        <field name="perm_write">1</field>
-        <field name="perm_create">1</field>
-        <field name="perm_unlink">1</field>
-    </record>
-
-    <!-- ── IT TECHNICIEN : règles métier ── -->
-
-    <!-- Tous les équipements du parc (vision globale pour le support) -->
-    <record id="rule_it_equipement_technicien" model="ir.rule">
-        <field name="name">IT Technicien — Équipements : vision complète du parc</field>
-        <field name="model_id" ref="model_it_equipement"/>
-        <field name="domain_force">[(1,'=',1)]</field>
-        <field name="groups" eval="[(4, ref('it_parc.group_it_technicien'))]"/>
-        <field name="perm_read">1</field>
-        <field name="perm_write">1</field>
-        <field name="perm_create">1</field>
-        <field name="perm_unlink">0</field>
-    </record>
-
-    <!-- Affectations : lecture seule de l'historique complet -->
-    <record id="rule_it_affectation_technicien" model="ir.rule">
-        <field name="name">IT Technicien — Affectations : lecture seule</field>
-        <field name="model_id" ref="model_it_affectation"/>
-        <field name="domain_force">[(1,'=',1)]</field>
-        <field name="groups" eval="[(4, ref('it_parc.group_it_technicien'))]"/>
-        <field name="perm_read">1</field>
-        <field name="perm_write">0</field>
-        <field name="perm_create">0</field>
-        <field name="perm_unlink">0</field>
-    </record>
-
-    <!--
-        Interventions : un technicien ne peut modifier/supprimer
-        QUE les interventions dont il est responsable.
-        Il peut toutefois voir et créer librement.
-        Deux règles distinctes (OR entre elles) :
-          - Règle lecture : tout voir
-          - Règle écriture : seulement ses interventions
-    -->
-    <record id="rule_it_intervention_technicien_read" model="ir.rule">
-        <field name="name">IT Technicien — Interventions : lecture de toutes</field>
-        <field name="model_id" ref="model_it_intervention"/>
-        <field name="domain_force">[(1,'=',1)]</field>
-        <field name="groups" eval="[(4, ref('it_parc.group_it_technicien'))]"/>
-        <field name="perm_read">1</field>
-        <field name="perm_write">0</field>
-        <field name="perm_create">0</field>
-        <field name="perm_unlink">0</field>
-    </record>
-
-    <record id="rule_it_intervention_technicien_write" model="ir.rule">
-        <field name="name">IT Technicien — Interventions : écriture sur les siennes</field>
-        <field name="model_id" ref="model_it_intervention"/>
-        <field name="domain_force">['|', ('technicien_id.user_id', '=', user.id), ('technicien_id', '=', False)]</field>
-        <field name="groups" eval="[(4, ref('it_parc.group_it_technicien'))]"/>
-        <field name="perm_read">0</field>
-        <field name="perm_write">1</field>
-        <field name="perm_create">1</field>
-        <field name="perm_unlink">0</field>
-    </record>
-
-    <!-- Contrats : lecture seule (correspond à l'access.csv) -->
-    <record id="rule_it_contrat_technicien" model="ir.rule">
-        <field name="name">IT Technicien — Contrats : lecture seule</field>
-        <field name="model_id" ref="model_it_contrat"/>
-        <field name="domain_force">[(1,'=',1)]</field>
-        <field name="groups" eval="[(4, ref('it_parc.group_it_technicien'))]"/>
-        <field name="perm_read">1</field>
-        <field name="perm_write">0</field>
-        <field name="perm_create">0</field>
-        <field name="perm_unlink">0</field>
-    </record>
-
-    <!-- Alertes : lecture + mise à jour du statut, pas de suppression -->
-    <record id="rule_it_alerte_technicien" model="ir.rule">
-        <field name="name">IT Technicien — Alertes : lecture et mise à jour statut</field>
-        <field name="model_id" ref="model_it_alerte"/>
-        <field name="domain_force">[(1,'=',1)]</field>
-        <field name="groups" eval="[(4, ref('it_parc.group_it_technicien'))]"/>
-        <field name="perm_read">1</field>
-        <field name="perm_write">1</field>
-        <field name="perm_create">0</field>
-        <field name="perm_unlink">0</field>
-    </record>
-
+    </data>
 </odoo>

@@ -1,94 +1,112 @@
 # -*- coding: utf-8 -*-
-from odoo import api, fields, models
+from odoo import models, fields, api, _
+from odoo.exceptions import ValidationError
+from datetime import date, timedelta
 
 
 class ItContrat(models.Model):
     _name = 'it.contrat'
     _description = 'Contrat fournisseur'
     _inherit = ['mail.thread', 'mail.activity.mixin']
-    _order = 'date_fin asc'
-    _rec_name = 'name'
+    _order = 'date_fin'
 
-    name = fields.Char(
-        string='Référence du contrat',
-        required=True,
-        tracking=True,
-    )
-    fournisseur_id = fields.Many2one(
-        'res.partner',
-        string='Fournisseur',
-        required=True,
-        domain=[('is_company', '=', True)],
-        tracking=True,
-    )
+    name = fields.Char(string='Intitulé du contrat', required=True)
+    reference = fields.Char(string='Référence', readonly=True, copy=False, default='Nouveau')
+    fournisseur_id = fields.Many2one('res.partner', string='Fournisseur', required=True)
     type_contrat = fields.Selection([
-        ('maintenance', 'Maintenance matériel'),
+        ('maintenance', 'Maintenance'),
         ('licence', 'Licence logicielle'),
+        ('assurance', 'Assurance'),
         ('support', 'Support technique'),
-        ('garantie_ext', 'Garantie étendue'),
         ('autre', 'Autre'),
-    ], string='Type de contrat', required=True, default='maintenance', tracking=True)
-
-    date_debut = fields.Date(string='Date de début', tracking=True)
-    date_fin = fields.Date(string='Date d\'expiration', required=True, tracking=True)
-
-    montant = fields.Float(string='Montant (FCFA)', digits=(16, 0))
-
-    state = fields.Selection([
+    ], string='Type de contrat', required=True)
+    date_debut = fields.Date(string='Date début', required=True)
+    date_fin = fields.Date(string='Date fin', required=True, tracking=True)
+    montant = fields.Float(string='Montant annuel (FCFA)', digits=(16, 0))
+    equipement_ids = fields.Many2many(
+        'it.equipement', 'it_equipement_contrat_rel', 'contrat_id', 'equipement_id',
+        string='Équipements couverts'
+    )
+    etat = fields.Selection([
+        ('brouillon', 'Brouillon'),
         ('actif', 'Actif'),
         ('expire', 'Expiré'),
         ('renouvele', 'Renouvelé'),
         ('resilie', 'Résilié'),
-    ], string='État', default='actif', tracking=True)
+    ], string='État', default='brouillon', required=True, tracking=True)
+    notes = fields.Text(string='Notes')
+    alerte_ids = fields.One2many('it.alerte', 'contrat_id', string='Alertes')
 
     jours_restants = fields.Integer(
-        string='Jours restants',
-        compute='_compute_jours_restants',
-        store=True,
-    )
-    equipement_ids = fields.Many2many(
-        'it.equipement',
-        'it_contrat_equipement_rel',
-        'contrat_id', 'equipement_id',
-        string='Équipements couverts',
-    )
-    note = fields.Text(string='Observations')
-    active = fields.Boolean(default=True)
+        string='Jours restants', compute='_compute_jours_restants', store=True)
+    expire = fields.Boolean(
+        string='Expiré', compute='_compute_jours_restants', store=True)
 
     @api.depends('date_fin')
     def _compute_jours_restants(self):
-        today = fields.Date.today()
+        today = date.today()
         for rec in self:
             if rec.date_fin:
-                rec.jours_restants = (rec.date_fin - today).days
+                delta = (rec.date_fin - today).days
+                rec.jours_restants = delta
+                rec.expire = delta < 0
             else:
                 rec.jours_restants = 0
+                rec.expire = False
 
-    def action_renouveler(self):
-        self.ensure_one()
-        return {
-            'type': 'ir.actions.act_window',
-            'name': 'Renouveler le contrat',
-            'res_model': 'wizard.renouvellement.contrat',
-            'view_mode': 'form',
-            'target': 'new',
-            'context': {
-                'default_contrat_id': self.id,
-                'default_fournisseur_id': self.fournisseur_id.id,
-                'default_type_contrat': self.type_contrat,
-                'default_montant': self.montant,
-            },
-        }
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get('reference', 'Nouveau') == 'Nouveau':
+                vals['reference'] = self.env['ir.sequence'].next_by_code('it.contrat') or 'Nouveau'
+        return super().create(vals_list)
+
+    def action_activer(self):
+        self.write({'etat': 'actif'})
 
     def action_resilier(self):
-        self.write({'state': 'resilie'})
+        self.write({'etat': 'resilie'})
+
+    def action_renouveler(self):
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Renouveler le contrat'),
+            'res_model': 'wizard.renouvellement',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_contrat_id': self.id},
+        }
+
+    @api.constrains('date_debut', 'date_fin')
+    def _check_dates(self):
+        for rec in self:
+            if rec.date_debut and rec.date_fin and rec.date_fin <= rec.date_debut:
+                raise ValidationError(_("La date de fin doit être postérieure à la date de début."))
 
     @api.model
-    def _cron_update_expired(self):
-        """Cron : mettre à jour l'état des contrats expirés."""
+    def cron_update_etats(self):
+        """Tâche planifiée : met à jour l'état des contrats expirés et génère les alertes."""
         today = fields.Date.today()
-        expired = self.search([
-            ('date_fin', '<', today),
-            ('state', '=', 'actif'),
-        ])
-        expired.write({'state': 'expire'})
+        expires = self.search([('etat', '=', 'actif'), ('date_fin', '<', today)])
+        expires.write({'etat': 'expire'})
+
+        seuil = today + timedelta(days=60)
+        contrats = self.search([('etat', '=', 'actif'), ('date_fin', '<=', seuil)])
+        Alerte = self.env['it.alerte']
+        for contrat in contrats:
+            existe = Alerte.search([
+                ('contrat_id', '=', contrat.id),
+                ('type_alerte', '=', 'contrat'),
+                ('etat', '=', 'actif'),
+            ], limit=1)
+            if not existe:
+                Alerte.create({
+                    'name': _("Expiration contrat — %s") % contrat.name,
+                    'type_alerte': 'contrat',
+                    'contrat_id': contrat.id,
+                    'date_echeance': contrat.date_fin,
+                    'message': _(
+                        "Le contrat '%s' (réf. %s) avec %s expire le %s (%d jours restants)."
+                    ) % (contrat.name, contrat.reference, contrat.fournisseur_id.name,
+                         contrat.date_fin, contrat.jours_restants),
+                })

@@ -3,177 +3,121 @@ import base64
 import csv
 import io
 from datetime import datetime
-
-from odoo import fields, models
+from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 
 
 class WizardImportCsv(models.TransientModel):
     _name = 'wizard.import.csv'
-    _description = 'Import en masse d\'équipements via CSV'
+    _description = 'Import en masse par CSV'
 
     fichier_csv = fields.Binary(string='Fichier CSV', required=True)
-    fichier_nom = fields.Char(string='Nom du fichier')
+    nom_fichier = fields.Char(string='Nom du fichier')
     separateur = fields.Selection([
-        (';', 'Point-virgule ( ; )'),
-        (',', 'Virgule ( , )'),
+        (';', 'Point-virgule (;)'),
+        (',', 'Virgule (,)'),
         ('\t', 'Tabulation'),
     ], string='Séparateur', default=';', required=True)
 
-    # Résultats
-    resultat_html = fields.Html(string='Rapport d\'import', readonly=True)
-    nb_crees = fields.Integer(string='Lignes créées', readonly=True)
-    nb_ignores = fields.Integer(string='Doublons ignorés', readonly=True)
+    nb_crees = fields.Integer(string='Créés', readonly=True)
+    nb_ignores = fields.Integer(string='Ignorés (doublons)', readonly=True)
     nb_erreurs = fields.Integer(string='Erreurs', readonly=True)
-    import_fait = fields.Boolean(default=False)
+    rapport = fields.Text(string='Rapport détaillé', readonly=True)
+    traite = fields.Boolean(default=False)
 
     def action_importer(self):
         self.ensure_one()
-        if not self.fichier_csv:
-            raise UserError("Veuillez sélectionner un fichier CSV.")
-
-        # Décodage du fichier
         try:
-            content = base64.b64decode(self.fichier_csv).decode('utf-8-sig')
+            contenu = base64.b64decode(self.fichier_csv).decode('utf-8-sig')
         except Exception:
-            raise UserError(
-                "Impossible de lire le fichier. Vérifiez l'encodage (UTF-8 recommandé)."
-            )
+            raise UserError(_("Impossible de lire le fichier. Assurez-vous qu'il est encodé en UTF-8."))
 
-        reader = csv.DictReader(
-            io.StringIO(content),
-            delimiter=self.separateur,
-        )
+        reader = csv.DictReader(io.StringIO(contenu), delimiter=self.separateur)
+        categories_valides = [c[0] for c in self.env['it.equipement']._fields['categorie'].selection]
 
-        crees = 0
-        ignores = 0
-        lignes_resultat = []
-        erreurs_count = 0
-
-        CATEGORIES_VALIDES = {
-            'poste_travail', 'serveur', 'imprimante',
-            'reseau', 'telephone', 'autre',
-        }
+        crees, ignores, erreurs = 0, 0, []
 
         for i, row in enumerate(reader, start=2):
-            nom = (row.get('name') or row.get('nom') or '').strip()
-            num_serie = (row.get('numero_serie') or row.get('serial') or '').strip()
+            row = {k.strip(): (v.strip() if v else '') for k, v in row.items() if k}
 
-            if not nom:
-                lignes_resultat.append(
-                    f'<tr class="table-danger"><td>{i}</td><td>—</td>'
-                    f'<td>{num_serie}</td><td>❌ Nom manquant</td></tr>'
+            # Champs obligatoires
+            if not row.get('name') or not row.get('categorie'):
+                erreurs.append(f"Ligne {i}: 'name' et 'categorie' sont obligatoires.")
+                continue
+
+            if row['categorie'] not in categories_valides:
+                erreurs.append(
+                    f"Ligne {i}: catégorie '{row['categorie']}' invalide. "
+                    f"Valeurs acceptées: {', '.join(categories_valides)}"
                 )
-                erreurs_count += 1
                 continue
 
             # Détection doublon par numéro de série
-            if num_serie:
-                existing = self.env['it.equipement'].search(
-                    [('numero_serie', '=', num_serie)], limit=1
+            if row.get('numero_serie'):
+                existant = self.env['it.equipement'].search(
+                    [('numero_serie', '=', row['numero_serie'])], limit=1
                 )
-                if existing:
-                    lignes_resultat.append(
-                        f'<tr class="table-warning"><td>{i}</td><td>{nom}</td>'
-                        f'<td>{num_serie}</td><td>⚠️ Doublon ignoré (réf. {existing.reference})</td></tr>'
-                    )
+                if existant:
                     ignores += 1
+                    erreurs.append(
+                        f"Ligne {i}: doublon ignoré — n° de série '{row['numero_serie']}' "
+                        f"déjà utilisé par '{existant.name}'."
+                    )
                     continue
 
+            vals = {
+                'name': row['name'],
+                'categorie': row['categorie'],
+                'marque': row.get('marque', ''),
+                'modele': row.get('modele', ''),
+                'numero_serie': row.get('numero_serie', ''),
+                'localisation': row.get('localisation', ''),
+                'notes': row.get('notes', ''),
+            }
+
+            if row.get('valeur_achat'):
+                try:
+                    vals['valeur_achat'] = float(row['valeur_achat'].replace(' ', '').replace(',', '.'))
+                except ValueError:
+                    erreurs.append(f"Ligne {i}: valeur_achat invalide '{row['valeur_achat']}'.")
+
+            for champ_date in ('date_achat', 'date_fin_garantie'):
+                if row.get(champ_date):
+                    for fmt in ('%d/%m/%Y', '%Y-%m-%d'):
+                        try:
+                            vals[champ_date] = datetime.strptime(row[champ_date], fmt).date()
+                            break
+                        except ValueError:
+                            continue
+                    else:
+                        erreurs.append(f"Ligne {i}: {champ_date} invalide '{row[champ_date]}'. Format attendu: JJ/MM/AAAA")
+
             try:
-                categorie = (row.get('categorie') or 'autre').strip().lower()
-                if categorie not in CATEGORIES_VALIDES:
-                    categorie = 'autre'
-
-                vals = {
-                    'name': nom,
-                    'numero_serie': num_serie or False,
-                    'categorie': categorie,
-                    'marque': (row.get('marque') or '').strip() or False,
-                    'modele': (row.get('modele') or '').strip() or False,
-                    'localisation': (row.get('localisation') or '').strip() or False,
-                }
-
-                # Date d'achat
-                raw_achat = (row.get('date_achat') or '').strip()
-                if raw_achat:
-                    for fmt in ('%d/%m/%Y', '%Y-%m-%d', '%d-%m-%Y'):
-                        try:
-                            vals['date_achat'] = datetime.strptime(raw_achat, fmt).date()
-                            break
-                        except ValueError:
-                            continue
-
-                # Date garantie
-                raw_garantie = (row.get('date_garantie') or '').strip()
-                if raw_garantie:
-                    for fmt in ('%d/%m/%Y', '%Y-%m-%d', '%d-%m-%Y'):
-                        try:
-                            vals['date_garantie'] = datetime.strptime(raw_garantie, fmt).date()
-                            break
-                        except ValueError:
-                            continue
-
-                # Valeur d'achat
-                raw_valeur = (row.get('valeur_achat') or '').strip()
-                if raw_valeur:
-                    try:
-                        vals['valeur_achat'] = float(
-                            raw_valeur.replace('\xa0', '').replace(' ', '').replace(',', '.')
-                        )
-                    except ValueError:
-                        pass
-
                 self.env['it.equipement'].create(vals)
                 crees += 1
-                lignes_resultat.append(
-                    f'<tr class="table-success"><td>{i}</td><td>{nom}</td>'
-                    f'<td>{num_serie or "—"}</td><td>✅ Créé</td></tr>'
-                )
-
             except Exception as e:
-                lignes_resultat.append(
-                    f'<tr class="table-danger"><td>{i}</td><td>{nom}</td>'
-                    f'<td>{num_serie or "—"}</td><td>❌ Erreur : {str(e)[:120]}</td></tr>'
-                )
-                erreurs_count += 1
+                erreurs.append(f"Ligne {i}: erreur création — {e}")
 
-        # Construction du rapport HTML
-        badge_crees = f'<span class="badge bg-success">{crees} créés</span>'
-        badge_ignores = f'<span class="badge bg-warning text-dark">{ignores} doublons</span>'
-        badge_erreurs = f'<span class="badge bg-danger">{erreurs_count} erreurs</span>'
-
-        html = f"""
-        <div>
-            <div class="alert alert-info mb-3">
-                <strong>Résultat de l'import :</strong>&nbsp;
-                {badge_crees}&nbsp;{badge_ignores}&nbsp;{badge_erreurs}
-            </div>
-            <table class="table table-sm table-bordered table-hover">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Ligne</th><th>Nom</th><th>N° Série</th><th>Résultat</th>
-                    </tr>
-                </thead>
-                <tbody>{''.join(lignes_resultat) or '<tr><td colspan="4" class="text-center text-muted">Aucune ligne traitée</td></tr>'}</tbody>
-            </table>
-        </div>
-        """
+        rapport_lignes = [
+            f"✓ {crees} équipement(s) créé(s)",
+            f"⊘ {ignores} doublon(s) ignoré(s)",
+            f"✗ {len(erreurs) - ignores} erreur(s)",
+        ]
+        if erreurs:
+            rapport_lignes.append("\nDétail :")
+            rapport_lignes.extend(erreurs)
 
         self.write({
             'nb_crees': crees,
             'nb_ignores': ignores,
-            'nb_erreurs': erreurs_count,
-            'resultat_html': html,
-            'import_fait': True,
+            'nb_erreurs': len(erreurs) - ignores,
+            'rapport': '\n'.join(rapport_lignes),
+            'traite': True,
         })
-
-        # Retourner la vue mise à jour avec le rapport
         return {
             'type': 'ir.actions.act_window',
-            'res_model': self._name,
+            'res_model': 'wizard.import.csv',
             'res_id': self.id,
             'view_mode': 'form',
             'target': 'new',
-            'context': dict(self.env.context),
         }

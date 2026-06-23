@@ -1,66 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-
-    <record id="view_it_affectation_list" model="ir.ui.view">
-        <field name="name">it.affectation.list</field>
-        <field name="model">it.affectation</field>
-        <field name="arch" type="xml">
-            <list>
-                <field name="equipement_id"/>
-                <field name="employee_id"/>
-                <field name="department_id"/>
-                <field name="date_debut"/>
-                <field name="date_fin"/>
-                <field name="motif"/>
-            </list>
-        </field>
-    </record>
-
-    <record id="view_it_affectation_form" model="ir.ui.view">
-        <field name="name">it.affectation.form</field>
-        <field name="model">it.affectation</field>
-        <field name="arch" type="xml">
-            <form>
-                <sheet>
-                    <group>
-                        <group string="Équipement">
-                            <field name="equipement_id"/>
+    <data>
+        <record id="view_it_affectation_form" model="ir.ui.view">
+            <field name="name">it.affectation.form</field>
+            <field name="model">it.affectation</field>
+            <field name="arch" type="xml">
+                <form string="Affectation">
+                    <header>
+                        <button name="action_terminer" string="Terminer l'affectation" type="object"
+                            class="btn-secondary" invisible="etat != 'actif'"
+                            groups="it_parc.group_it_parc_manager"/>
+                        <field name="etat" widget="statusbar"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="equipement_id"/>
+                                <field name="employee_id"/>
+                                <field name="department_id"/>
+                            </group>
+                            <group>
+                                <field name="date_debut"/>
+                                <field name="date_fin" invisible="etat == 'actif'"/>
+                            </group>
                         </group>
-                        <group string="Affectation">
-                            <field name="employee_id"/>
-                            <field name="department_id"/>
-                        </group>
-                    </group>
-                    <group>
-                        <group string="Période">
-                            <field name="date_debut"/>
-                            <field name="date_fin"/>
-                        </group>
-                    </group>
-                    <group>
-                        <field name="motif" placeholder="Motif du changement d'affectation…"/>
-                    </group>
-                </sheet>
-                <chatter/>
-            </form>
-        </field>
-    </record>
+                        <field name="motif" placeholder="Motif de l'affectation..."/>
+                    </sheet>
+                </form>
+            </field>
+        </record>
 
-    <record id="view_it_affectation_search" model="ir.ui.view">
-        <field name="name">it.affectation.search</field>
-        <field name="model">it.affectation</field>
-        <field name="arch" type="xml">
-            <search>
-                <field name="equipement_id"/>
-                <field name="employee_id"/>
-                <field name="department_id"/>
-                <filter string="En cours" name="en_cours" domain="[('date_fin','=',False)]"/>
-                <group expand="0" string="Grouper par">
-                    <filter string="Équipement" name="by_eq" context="{'group_by': 'equipement_id'}"/>
-                    <filter string="Employé" name="by_emp" context="{'group_by': 'employee_id'}"/>
-                </group>
-            </search>
-        </field>
-    </record>
+        <record id="view_it_affectation_list" model="ir.ui.view">
+            <field name="name">it.affectation.list</field>
+            <field name="model">it.affectation</field>
+            <field name="arch" type="xml">
+                <list string="Affectations" decoration-it="etat == 'termine'">
+                    <field name="equipement_id"/>
+                    <field name="employee_id"/>
+                    <field name="department_id"/>
+                    <field name="date_debut"/>
+                    <field name="date_fin"/>
+                    <field name="motif"/>
+                    <field name="etat" widget="badge"
+                        decoration-success="etat == 'actif'"
+                        decoration-warning="etat == 'termine'"/>
+                </list>
+            </field>
+        </record>
 
+        <record id="view_it_affectation_search" model="ir.ui.view">
+            <field name="name">it.affectation.search</field>
+            <field name="model">it.affectation</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="equipement_id"/>
+                    <field name="employee_id"/>
+                    <field name="department_id"/>
+                    <filter string="Actives" name="actives" domain="[('etat','=','actif')]"/>
+                    <filter string="Terminées" name="terminees" domain="[('etat','=','termine')]"/>
+                    <group expand="0" string="Grouper par">
+                        <filter name="g_employee" string="Employé" context="{'group_by': 'employee_id'}"/>
+                        <filter name="g_department" string="Département" context="{'group_by': 'department_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_it_affectation" model="ir.actions.act_window">
+            <field name="name">Affectations</field>
+            <field name="res_model">it.affectation</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="view_it_affectation_search"/>
+        </record>
+    </data>
 </odoo>

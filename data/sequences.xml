@@ -1,14 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-
-    <record id="seq_it_equipement" model="ir.sequence">
-        <field name="name">Référence équipement IT</field>
-        <field name="code">it.equipement</field>
-        <field name="prefix">EQ/%(year)s/</field>
-        <field name="padding">4</field>
-        <field name="number_next">1</field>
-        <field name="number_increment">1</field>
-        <field name="company_id" eval="False"/>
-    </record>
-
+    <data noupdate="1">
+        <record id="seq_it_equipement" model="ir.sequence">
+            <field name="name">Séquence Équipement IT</field>
+            <field name="code">it.equipement</field>
+            <field name="prefix">EQ/%(year)s/</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        <record id="seq_it_intervention" model="ir.sequence">
+            <field name="name">Séquence Intervention IT</field>
+            <field name="code">it.intervention</field>
+            <field name="prefix">INT/%(year)s/</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        <record id="seq_it_contrat" model="ir.sequence">
+            <field name="name">Séquence Contrat IT</field>
+            <field name="code">it.contrat</field>
+            <field name="prefix">CTR/%(year)s/</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+    </data>
 </odoo>

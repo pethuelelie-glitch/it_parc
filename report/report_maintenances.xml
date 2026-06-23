@@ -1,128 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <data>
+        <record id="action_report_maintenances" model="ir.actions.report">
+            <field name="name">Historique des maintenances</field>
+            <field name="model">it.intervention</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">it_parc.report_maintenances_template</field>
+            <field name="report_file">it_parc.report_maintenances_template</field>
+            <field name="binding_model_id" ref="model_it_intervention"/>
+            <field name="binding_type">report</field>
+            <field name="paperformat_id" ref="base.paperformat_euro"/>
+        </record>
 
-    <record id="action_report_maintenances" model="ir.actions.report">
-        <field name="name">Rapport des maintenances</field>
-        <field name="model">it.intervention</field>
-        <field name="report_type">qweb-pdf</field>
-        <field name="report_name">it_parc.report_maintenances_template</field>
-        <field name="report_file">it_parc/report/report_maintenances</field>
-        <field name="binding_model_id" ref="model_it_intervention"/>
-        <field name="binding_type">report</field>
-        <field name="paperformat_id" ref="base.paperformat_euro"/>
-    </record>
-
-    <template id="report_maintenances_template">
-        <t t-call="web.html_container">
-            <t t-call="web.external_layout">
-                <div class="page">
-
-                    <!-- Titre -->
-                    <div class="row mb-4">
-                        <div class="col-12">
-                            <h2 style="color:#4a148c; border-bottom:3px solid #4a148c; padding-bottom:10px;">
-                                🔧 Rapport d'Historique des Maintenances
-                            </h2>
-                            <p class="text-muted">
-                                Généré le <t t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y à %H:%M')"/>
-                                — <strong><t t-esc="len(docs)"/> intervention(s)</strong>
-                                — Coût total :
-                                <strong><t t-esc="'{:,.0f} FCFA'.format(sum(docs.mapped('cout')))"/></strong>
-                            </p>
+        <template id="report_maintenances_template">
+            <t t-call="web.html_container">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <div class="row mb-3">
+                            <div class="col-8">
+                                <h2 class="text-primary">RAPPORT DE MAINTENANCE</h2>
+                                <p class="text-muted">TECHPARK CI — <t t-esc="len(docs)"/> intervention(s)</p>
+                            </div>
                         </div>
-                    </div>
-
-                    <!-- Tableau des interventions -->
-                    <table class="table table-bordered table-sm" style="font-size:10px;">
-                        <thead style="background:#4a148c; color:white;">
-                            <tr>
-                                <th style="width:18%;">Titre</th>
-                                <th style="width:14%;">Équipement</th>
-                                <th style="width:10%;">Type</th>
-                                <th style="width:12%;">Technicien</th>
-                                <th style="width:11%;">Date début</th>
-                                <th style="width:11%;">Date fin</th>
-                                <th style="width:8%;">Durée (h)</th>
-                                <th style="width:10%;">Coût (FCFA)</th>
-                                <th style="width:8%;">État</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <t t-set="type_map" t-value="{'correctif':'Correctif','preventif':'Préventif','upgrade':'Upgrade','autre':'Autre'}"/>
-                            <t t-set="state_map" t-value="{'planifie':'Planifiée','en_cours':'En cours','termine':'Terminée','annule':'Annulée'}"/>
-                            <t t-foreach="docs" t-as="i">
-                                <tr t-attf-style="background: #{i.state == 'annule' and '#fafafa' or ''}">
-                                    <td><strong><t t-esc="i.name"/></strong></td>
-                                    <td>
-                                        <t t-esc="i.equipement_id.name"/>
-                                        <br/>
-                                        <span style="font-size:8px; color:#666;">
-                                            <t t-esc="i.equipement_id.reference"/>
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span t-attf-style="color: #{i.type_intervention == 'correctif' and '#c62828' or i.type_intervention == 'preventif' and '#1565C0' or '#546e7a'}; font-weight:bold;">
-                                            <t t-esc="type_map.get(i.type_intervention, i.type_intervention)"/>
-                                        </span>
-                                    </td>
-                                    <td><t t-esc="i.technicien_id.name or '—'"/></td>
-                                    <td><t t-esc="i.date_debut and i.date_debut.strftime('%d/%m/%Y %H:%M') or '—'"/></td>
-                                    <td><t t-esc="i.date_fin and i.date_fin.strftime('%d/%m/%Y %H:%M') or '—'"/></td>
-                                    <td class="text-end"><t t-esc="'%.1f' % i.duree if i.duree else '0.0'"/></td>
-                                    <td class="text-end"><t t-esc="'{:,.0f}'.format(i.cout) if i.cout else '0'"/></td>
-                                    <td>
-                                        <span t-attf-style="color: #{i.state == 'termine' and '#2e7d32' or i.state == 'en_cours' and '#e65100' or i.state == 'annule' and '#c62828' or '#546e7a'};">
-                                            <t t-esc="state_map.get(i.state, i.state)"/>
-                                        </span>
-                                    </td>
+                        <hr/>
+                        <table class="table table-sm table-bordered" style="font-size:10px;">
+                            <thead style="background-color:#1F4E79; color:white;">
+                                <tr>
+                                    <th>Référence</th>
+                                    <th>Équipement</th>
+                                    <th>Type</th>
+                                    <th>Technicien</th>
+                                    <th>Date début</th>
+                                    <th>Date fin</th>
+                                    <th>Durée (h)</th>
+                                    <th>Coût (FCFA)</th>
+                                    <th>État</th>
                                 </tr>
-                            </t>
-                        </tbody>
-                        <tfoot style="background:#f3e5f5;">
-                            <tr>
-                                <td colspan="6" class="text-end"><strong>Totaux :</strong></td>
-                                <td class="text-end">
-                                    <strong>
-                                        <t t-esc="'%.1f' % sum(docs.mapped('duree'))"/> h
-                                    </strong>
-                                </td>
-                                <td class="text-end">
-                                    <strong>
-                                        <t t-esc="'{:,.0f} FCFA'.format(sum(docs.mapped('cout')))"/>
-                                    </strong>
-                                </td>
-                                <td></td>
-                            </tr>
-                        </tfoot>
-                    </table>
-
-                    <!-- Synthèse par type -->
-                    <div class="row mt-4">
-                        <div class="col-6">
-                            <h6 style="color:#4a148c;">Synthèse par type d'intervention</h6>
-                            <table class="table table-sm table-bordered" style="font-size:10px;">
-                                <thead style="background:#ede7f6;">
-                                    <tr><th>Type</th><th class="text-end">Nb</th><th class="text-end">Coût total (FCFA)</th></tr>
-                                </thead>
-                                <tbody>
-                                    <t t-foreach="[('correctif','Correctif'),('preventif','Préventif'),('upgrade','Upgrade'),('autre','Autre')]" t-as="pair">
-                                        <t t-set="filtered" t-value="docs.filtered(lambda r: r.type_intervention == pair[0])"/>
-                                        <t t-if="filtered">
-                                            <tr>
-                                                <td><t t-esc="pair[1]"/></td>
-                                                <td class="text-end"><t t-esc="len(filtered)"/></td>
-                                                <td class="text-end"><t t-esc="'{:,.0f}'.format(sum(filtered.mapped('cout')))"/></td>
-                                            </tr>
-                                        </t>
-                                    </t>
-                                </tbody>
-                            </table>
-                        </div>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="docs" t-as="i"
+                                    t-attf-style="#{i.etat == 'annule' and 'color:#999' or ''}">
+                                    <td><t t-esc="i.name"/></td>
+                                    <td><t t-esc="i.equipement_id.name"/></td>
+                                    <td><t t-esc="i.type_intervention"/></td>
+                                    <td><t t-esc="i.technicien_id.name or '—'"/></td>
+                                    <td><t t-field="i.date_debut"/></td>
+                                    <td><t t-field="i.date_fin"/></td>
+                                    <td><t t-esc="'{:.1f}'.format(i.duree)"/></td>
+                                    <td><t t-esc="'{:,.0f}'.format(i.cout)"/></td>
+                                    <td><t t-esc="i.etat"/></td>
+                                </tr>
+                            </tbody>
+                            <tfoot style="background-color:#F0F0F0;">
+                                <tr>
+                                    <td colspan="7"><strong>TOTAL</strong></td>
+                                    <td><strong><t t-esc="'{:,.0f}'.format(sum(docs.mapped('cout')))"/> FCFA</strong></td>
+                                    <td/>
+                                </tr>
+                            </tfoot>
+                        </table>
                     </div>
-
-                </div>
+                </t>
             </t>
-        </t>
-    </template>
-
+        </template>
+    </data>
 </odoo>

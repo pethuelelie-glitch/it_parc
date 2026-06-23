@@ -1,36 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <data>
+        <record id="view_wizard_scan_alertes_form" model="ir.ui.view">
+            <field name="name">wizard.scan.alertes.form</field>
+            <field name="model">wizard.scan.alertes</field>
+            <field name="arch" type="xml">
+                <form string="Scanner les alertes">
+                    <sheet>
+                        <group string="Paramètres" invisible="traite">
+                            <field name="jours_avant_garantie"/>
+                            <field name="jours_avant_contrat"/>
+                        </group>
+                        <group string="Résultat" invisible="not traite">
+                            <field name="nb_alertes_creees" readonly="True"/>
+                            <field name="resultat" readonly="True"/>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button name="action_scanner" string="Lancer le scan" type="object"
+                            class="btn-primary" invisible="traite"/>
+                        <button string="Fermer" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
 
-    <record id="view_wizard_scan_alertes_form" model="ir.ui.view">
-        <field name="name">wizard.scan.alertes.form</field>
-        <field name="model">wizard.scan.alertes</field>
-        <field name="arch" type="xml">
-            <form string="Scan des alertes">
-                <sheet>
-                    <div class="alert alert-info" role="alert" invisible="scan_fait">
-                        Scanne les garanties d'équipements et les contrats fournisseurs
-                        qui expirent dans le délai défini, et génère des alertes si aucune n'existe déjà.
-                    </div>
-
-                    <group invisible="scan_fait">
-                        <field name="delai_jours"
-                               help="Générer des alertes pour les éléments expirant dans X jours"/>
-                    </group>
-
-                    <div class="alert alert-success" role="alert" invisible="not scan_fait">
-                        <strong>✅ Scan terminé.</strong>
-                        <field name="nb_alertes_creees" nolabel="1" class="ms-1"/> nouvelle(s) alerte(s) générée(s).
-                    </div>
-                </sheet>
-                <footer>
-                    <button name="action_lancer_scan" string="Lancer le scan"
-                            type="object" class="btn-primary" invisible="scan_fait"/>
-                    <button name="action_voir_alertes" string="Voir les alertes"
-                            type="object" class="btn-secondary" invisible="not scan_fait"/>
-                    <button string="Fermer" class="btn-secondary" special="cancel"/>
-                </footer>
-            </form>
-        </field>
-    </record>
-
+        <record id="action_wizard_scan_alertes" model="ir.actions.act_window">
+            <field name="name">Scanner les alertes</field>
+            <field name="res_model">wizard.scan.alertes</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+    </data>
 </odoo>

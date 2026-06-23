@@ -1,44 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-
-    <!-- ══════════════════════════════════════
-         Wizard Réaffectation
-    ══════════════════════════════════════ -->
-    <record id="view_wizard_reaffectation_form" model="ir.ui.view">
-        <field name="name">wizard.reaffectation.form</field>
-        <field name="model">wizard.reaffectation</field>
-        <field name="arch" type="xml">
-            <form string="Réaffecter l'équipement">
-                <sheet>
-                    <div class="alert alert-info" role="alert">
-                        <strong>Équipement :</strong>
-                        <field name="equipement_id" readonly="1" nolabel="1" class="ms-1"/>
-                        <br/>
-                        <strong>Employé actuel :</strong>
-                        <field name="employee_id_actuel" readonly="1" nolabel="1" class="ms-1"/>
-                    </div>
-                    <group>
+    <data>
+        <record id="view_wizard_reaffectation_form" model="ir.ui.view">
+            <field name="name">wizard.reaffectation.form</field>
+            <field name="model">wizard.reaffectation</field>
+            <field name="arch" type="xml">
+                <form string="Affecter / Réaffecter l'équipement">
+                    <sheet>
+                        <group string="Équipement">
+                            <field name="equipement_id" readonly="True"/>
+                            <field name="ancien_employee_id" readonly="True"/>
+                            <field name="ancien_department_id" readonly="True"/>
+                        </group>
                         <group string="Nouvelle affectation">
-                            <field name="employee_id" required="1"/>
-                            <field name="department_id"/>
-                            <field name="localisation"/>
+                            <field name="nouvel_employee_id"/>
+                            <field name="nouveau_department_id"/>
+                            <field name="date_reaffectation"/>
+                            <field name="motif" required="True" placeholder="Motif de la réaffectation..."/>
                         </group>
-                        <group string="Détails">
-                            <field name="date_affectation" required="1"/>
-                        </group>
-                    </group>
-                    <group>
-                        <field name="motif" required="1"
-                               placeholder="Raison du changement d'affectation…"/>
-                    </group>
-                </sheet>
-                <footer>
-                    <button name="action_confirmer" string="Confirmer la réaffectation"
-                            type="object" class="btn-primary"/>
-                    <button string="Annuler" class="btn-secondary" special="cancel"/>
-                </footer>
-            </form>
-        </field>
-    </record>
-
+                    </sheet>
+                    <footer>
+                        <button name="action_reaffecter" string="Confirmer l'affectation" type="object" class="btn-primary"/>
+                        <button string="Annuler" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+    </data>
 </odoo>

@@ -1,235 +1,116 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <templates xml:space="preserve">
+    <t t-name="it_parc.Dashboard">
+        <div class="it-parc-dashboard o_action_manager">
+            <div class="o_control_panel">
+                <div class="o_cp_top">
+                    <h2 class="ms-3 mt-2">Tableau de bord — Parc Informatique</h2>
+                </div>
+            </div>
+            <div class="container-fluid mt-3">
+                <!-- KPIs -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-3">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body text-center">
+                                <div class="text-muted small mb-1">Total équipements</div>
+                                <div class="display-5 fw-bold text-primary"><t t-esc="state.total"/></div>
+                                <i class="fa fa-desktop fa-lg text-primary mt-1"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body text-center">
+                                <div class="text-muted small mb-1">Affectés</div>
+                                <div class="display-5 fw-bold text-success"><t t-esc="state.actifs"/></div>
+                                <i class="fa fa-check-circle fa-lg text-success mt-1"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body text-center">
+                                <div class="text-muted small mb-1">En maintenance</div>
+                                <div class="display-5 fw-bold text-warning"><t t-esc="state.en_maintenance"/></div>
+                                <i class="fa fa-wrench fa-lg text-warning mt-1"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body text-center">
+                                <div class="text-muted small mb-1">Alertes actives</div>
+                                <div class="display-5 fw-bold text-danger"><t t-esc="state.alertes_actives"/></div>
+                                <i class="fa fa-exclamation-triangle fa-lg text-danger mt-1"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-<t t-name="it_parc.Dashboard">
-<div class="o_action" style="background:#f0f4f8; min-height:100vh; padding:24px;">
+                <!-- Coût + Graphique -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-header bg-white fw-semibold">Coût maintenance ce mois</div>
+                            <div class="card-body text-center d-flex flex-column justify-content-center">
+                                <div class="display-6 fw-bold text-info">
+                                    <t t-esc="state.cout_mois"/>
+                                    <small class="fs-6 text-muted ms-1">FCFA</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-header bg-white fw-semibold">Répartition par catégorie</div>
+                            <div class="card-body p-2">
+                                <canvas id="it_parc_cat_chart" style="max-height:220px;"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-    <!-- ══════ EN-TÊTE ══════ -->
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
-        <div>
-            <h2 style="color:#1565C0; font-weight:700; margin:0; font-size:22px;">
-                🖥️ Tableau de bord — Parc Informatique
-            </h2>
-            <p style="color:#607d8b; margin:4px 0 0; font-size:13px;">
-                TECHPARK CI — Vue d'ensemble de l'inventaire IT
-            </p>
-        </div>
-        <button class="btn btn-sm btn-outline-primary" t-on-click="refresh">
-            🔄 Actualiser
-        </button>
-    </div>
-
-    <!-- ══════ CHARGEMENT ══════ -->
-    <t t-if="!state.loaded">
-        <div style="display:flex; justify-content:center; align-items:center; height:300px;">
-            <div class="text-center">
-                <div class="spinner-border text-primary" role="status" style="width:3rem;height:3rem;"/>
-                <p style="margin-top:16px; color:#90a4ae;">Chargement des données...</p>
+                <!-- Raccourcis -->
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <div class="card border-0 shadow-sm text-decoration-none text-dark"
+                            style="cursor:pointer;"
+                            t-on-click="() => this.navTo('it.equipement')">
+                            <div class="card-body text-center py-3">
+                                <i class="fa fa-list fa-lg me-2 text-primary"/>Équipements
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card border-0 shadow-sm text-decoration-none text-dark"
+                            style="cursor:pointer;"
+                            t-on-click="() => this.navTo('it.intervention')">
+                            <div class="card-body text-center py-3">
+                                <i class="fa fa-wrench fa-lg me-2 text-warning"/>Interventions
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card border-0 shadow-sm text-decoration-none text-dark"
+                            style="cursor:pointer;"
+                            t-on-click="() => this.navTo('it.contrat')">
+                            <div class="card-body text-center py-3">
+                                <i class="fa fa-file-text fa-lg me-2 text-info"/>Contrats
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card border-0 shadow-sm text-decoration-none text-dark"
+                            style="cursor:pointer;"
+                            t-on-click="() => this.navTo('it.alerte')">
+                            <div class="card-body text-center py-3">
+                                <i class="fa fa-bell fa-lg me-2 text-danger"/>Alertes
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </t>
-
-    <t t-else="">
-
-        <!-- ══════ LIGNE 1 : 5 KPI CARDS ══════ -->
-        <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:16px; margin-bottom:24px;">
-
-            <!-- Total équipements -->
-            <div class="card border-0 shadow-sm" style="border-radius:12px; cursor:pointer;"
-                 t-on-click="() => this.openEquipements([])">
-                <div class="card-body" style="padding:20px; display:flex; align-items:center; gap:16px;">
-                    <div style="width:48px;height:48px;background:#e3f2fd;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;">
-                        🖥️
-                    </div>
-                    <div>
-                        <div style="font-size:28px; font-weight:700; color:#1565C0; line-height:1;">
-                            <t t-esc="state.total_equipements"/>
-                        </div>
-                        <div style="font-size:12px; color:#90a4ae; margin-top:2px;">Total équipements</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Affectés -->
-            <div class="card border-0 shadow-sm" style="border-radius:12px; cursor:pointer;"
-                 t-on-click="() => this.openEquipements([['state','=','affecte']])">
-                <div class="card-body" style="padding:20px; display:flex; align-items:center; gap:16px;">
-                    <div style="width:48px;height:48px;background:#e8f5e9;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;">
-                        ✅
-                    </div>
-                    <div>
-                        <div style="font-size:28px; font-weight:700; color:#2e7d32; line-height:1;">
-                            <t t-esc="state.affectes"/>
-                        </div>
-                        <div style="font-size:12px; color:#90a4ae; margin-top:2px;">Affectés</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- En maintenance -->
-            <div class="card border-0 shadow-sm" style="border-radius:12px; cursor:pointer;"
-                 t-on-click="() => this.openEquipements([['state','=','en_maintenance']])">
-                <div class="card-body" style="padding:20px; display:flex; align-items:center; gap:16px;">
-                    <div style="width:48px;height:48px;background:#fff3e0;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;">
-                        🔧
-                    </div>
-                    <div>
-                        <div style="font-size:28px; font-weight:700; color:#e65100; line-height:1;">
-                            <t t-esc="state.en_maintenance"/>
-                        </div>
-                        <div style="font-size:12px; color:#90a4ae; margin-top:2px;">En maintenance</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Alertes actives -->
-            <div class="card border-0 shadow-sm" style="border-radius:12px; cursor:pointer;"
-                 t-on-click="openAlertes">
-                <div class="card-body" style="padding:20px; display:flex; align-items:center; gap:16px;">
-                    <div style="width:48px;height:48px;background:#fce4ec;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;">
-                        🔔
-                    </div>
-                    <div>
-                        <div style="font-size:28px; font-weight:700; color:#c62828; line-height:1;">
-                            <t t-esc="state.alertes_actives"/>
-                        </div>
-                        <div style="font-size:12px; color:#90a4ae; margin-top:2px;">Alertes actives</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Contrats expirants -->
-            <div class="card border-0 shadow-sm" style="border-radius:12px; cursor:pointer;"
-                 t-on-click="openContratsExpirants">
-                <div class="card-body" style="padding:20px; display:flex; align-items:center; gap:16px;">
-                    <div style="width:48px;height:48px;background:#f3e5f5;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;">
-                        📄
-                    </div>
-                    <div>
-                        <div style="font-size:28px; font-weight:700; color:#6a1b9a; line-height:1;">
-                            <t t-esc="state.contrats_expirants"/>
-                        </div>
-                        <div style="font-size:12px; color:#90a4ae; margin-top:2px;">Contrats (30j)</div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- ══════ LIGNE 2 : GRAPHIQUE + RÉPARTITION ══════ -->
-        <div style="display:grid; grid-template-columns:2fr 1fr; gap:16px;">
-
-            <!-- Graphique barres — Équipements par catégorie -->
-            <div class="card border-0 shadow-sm" style="border-radius:12px;">
-                <div class="card-header" style="background:white; border:none; padding:16px 20px 0; border-radius:12px 12px 0 0;">
-                    <h6 style="font-weight:600; color:#37474f; margin:0;">
-                        📊 Équipements par catégorie
-                    </h6>
-                </div>
-                <div class="card-body" style="padding:16px 20px 20px;">
-                    <t t-if="state.bars.length === 0">
-                        <div style="text-align:center; color:#b0bec5; padding:60px 0;">
-                            <div style="font-size:48px;">📭</div>
-                            <p style="margin-top:8px;">Aucune donnée disponible</p>
-                        </div>
-                    </t>
-                    <t t-else="">
-                        <svg t-att-viewBox="'0 0 ' + state.chartWidth + ' ' + state.chartHeight"
-                             style="width:100%; height:260px; overflow:visible;">
-
-                            <!-- Grille horizontale -->
-                            <t t-foreach="state.gridLines" t-as="gl" t-key="gl.yPos">
-                                <line x1="60" t-att-y1="gl.yPos"
-                                      t-att-x2="state.chartWidth - 10" t-att-y2="gl.yPos"
-                                      stroke="#eceff1" stroke-width="1"/>
-                                <text x="55" t-att-y="gl.yPos + 4"
-                                      text-anchor="end" font-size="9" fill="#b0bec5">
-                                    <t t-esc="gl.val"/>
-                                </text>
-                            </t>
-
-                            <!-- Axe Y -->
-                            <line x1="60" y1="10"
-                                  x2="60" t-att-y2="state.chartHeight - 40"
-                                  stroke="#cfd8dc" stroke-width="1.5"/>
-
-                            <!-- Barres -->
-                            <t t-foreach="state.bars" t-as="bar" t-key="bar.key">
-                                <!-- Ombre barre -->
-                                <rect t-att-x="bar.x + 2" t-att-y="bar.y + 2"
-                                      t-att-width="state.barW" t-att-height="bar.bh"
-                                      fill="#00000011" rx="4"/>
-                                <!-- Barre principale -->
-                                <rect t-att-x="bar.x" t-att-y="bar.y"
-                                      t-att-width="state.barW" t-att-height="bar.bh"
-                                      t-att-fill="bar.color" rx="4"/>
-                                <!-- Valeur au-dessus -->
-                                <text t-att-x="bar.labelX" t-att-y="bar.y - 6"
-                                      text-anchor="middle" font-size="11"
-                                      fill="#37474f" font-weight="bold">
-                                    <t t-esc="bar.count"/>
-                                </text>
-                                <!-- Label catégorie -->
-                                <text t-att-x="bar.labelX"
-                                      t-att-y="state.chartHeight - 22"
-                                      text-anchor="middle" font-size="9" fill="#78909c">
-                                    <t t-esc="bar.label"/>
-                                </text>
-                            </t>
-
-                            <!-- Axe X -->
-                            <line x1="60" t-att-y1="state.chartHeight - 40"
-                                  t-att-x2="state.chartWidth - 10"
-                                  t-att-y2="state.chartHeight - 40"
-                                  stroke="#cfd8dc" stroke-width="1.5"/>
-
-                        </svg>
-                    </t>
-                </div>
-            </div>
-
-            <!-- Répartition par état -->
-            <div class="card border-0 shadow-sm" style="border-radius:12px;">
-                <div class="card-header" style="background:white; border:none; padding:16px 20px 0; border-radius:12px 12px 0 0;">
-                    <h6 style="font-weight:600; color:#37474f; margin:0;">
-                        📈 Distribution par état
-                    </h6>
-                </div>
-                <div class="card-body" style="padding:16px 20px 20px;">
-                    <t t-foreach="state.stateData" t-as="item" t-key="item.key">
-                        <div style="margin-bottom:16px;">
-                            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
-                                <span style="font-size:13px; color:#546e7a;">
-                                    <t t-esc="item.label"/>
-                                </span>
-                                <span style="font-size:13px; font-weight:600;"
-                                      t-att-style="'color:' + item.color">
-                                    <t t-esc="item.count"/>
-                                    <span style="font-size:11px; color:#b0bec5; font-weight:400;">
-                                        &#160;(<t t-esc="item.pct"/>%)
-                                    </span>
-                                </span>
-                            </div>
-                            <div style="height:8px; background:#eceff1; border-radius:4px; overflow:hidden;">
-                                <div t-att-style="'width:' + item.pct + '%; background:' + item.color + '; height:100%; border-radius:4px; transition:width .6s ease;'"/>
-                            </div>
-                        </div>
-                    </t>
-
-                    <!-- Légende -->
-                    <div style="margin-top:24px; padding-top:16px; border-top:1px solid #eceff1;">
-                        <p style="font-size:11px; color:#b0bec5; margin:0;">
-                            Total : <strong style="color:#37474f;"><t t-esc="state.total_equipements"/></strong> équipement(s)
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
-    </t>
-
-</div>
-</t>
-
 </templates>

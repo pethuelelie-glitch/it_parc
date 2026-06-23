@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_wizard_export_excel_form" model="ir.ui.view">
+            <field name="name">wizard.export.excel.form</field>
+            <field name="model">wizard.export.excel</field>
+            <field name="arch" type="xml">
+                <form string="Export Excel">
+                    <sheet>
+                        <group string="Paramètres" invisible="genere">
+                            <field name="type_export"/>
+                            <field name="date_debut" invisible="type_export != 'couts_maintenance'"/>
+                            <field name="date_fin" invisible="type_export != 'couts_maintenance'"/>
+                        </group>
+                        <group string="Fichier généré" invisible="not genere">
+                            <field name="file_data" widget="binary" filename="file_name" readonly="True"/>
+                            <field name="file_name" invisible="True"/>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button name="action_generer" string="Générer l'export" type="object"
+                            class="btn-primary" invisible="genere"/>
+                        <button string="Fermer" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>
